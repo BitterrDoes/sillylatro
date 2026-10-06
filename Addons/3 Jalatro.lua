@@ -1,7 +1,3 @@
---- NAME: Jalatro
---- AUTHOR: [BitterDoes]
---- DESCRIPTION: Makes every word in any card start with a j
-
 local function changewords(str)
     if not str then return str end
 
@@ -79,9 +75,6 @@ end
 
 local old = init_localization
 function init_localization(...)
-    print("jala = ", Btraddon.config.jala)
-    if Btraddon.config.jala then
-        process_localization(G.localization)
-    end
+    process_localization(G.localization)
     return old(...)
 end

@@ -1,7 +1,3 @@
---- NAME: bltro
---- AUTHOR: [BitterDoes]
---- DESCRIPTION: Removes all appearences of 'a' from jokers
-
 local function changewords(str)
     if not str then return str end
     if type(str) == "table" then
@@ -64,9 +60,6 @@ end
 
 local old = init_localization
 function init_localization(...)
-    print("bltro = ", Btraddon.config.bltro)
-    if Btraddon.config.bltro then
-        process_localization(G.localization)
-    end
+    process_localization(G.localization)
     return old(...)
 end

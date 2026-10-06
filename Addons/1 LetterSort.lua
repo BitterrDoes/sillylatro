@@ -1,7 +1,3 @@
---- NAME: sort
---- AUTHOR: [BitterDoes]
---- DESCRIPTION: Sorts all letters alphabetically in joker text
-
 local function changewords(str)
     if not str then return str end
     if type(str) == "table" then
@@ -87,9 +83,6 @@ end
 
 local old = init_localization
 function init_localization(...)
-    print("sort = ", Btraddon.config.sort)
-    if Btraddon.config.sort then
-        process_localization(G.localization)
-    end
+    process_localization(G.localization)
     return old(...)
 end

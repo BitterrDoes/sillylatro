@@ -1,7 +1,3 @@
---- NAME: DVD Balatro
---- AUTHOR: [BitterDoes]
---- DESCRIPTION: Haha dvd logo, can cause headaches
-
 local windowX, windowY
 local velocityX, velocityY
 local speed = .5
