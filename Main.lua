@@ -19,7 +19,7 @@ function create_toggle_spec(args)
     args.w = args.w or 6
     args.h = args.h or 5
     args.scale = args.scale or 1
-    args.label = args.label or 'shake yo booty?'
+    args.label = args.label or ''
     args.desc = args.desc or nil
     args.label_scale = args.label_scale or 1.5
     args.desc_scale = args.desc_scale or 1
@@ -227,7 +227,7 @@ Btraddon.calculate = function(self, context)
             end
         elseif context.press_play then
             Btraddon.set_markstate("prayge")
-        elseif context.after and not G.GAME.markstate == "death" then
+        elseif context.after and G.GAME.markstate ~= "death" then
             G.E_MANAGER:add_event(Event({
                 func = function()
                     Btraddon.set_markstate()

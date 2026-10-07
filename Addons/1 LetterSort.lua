@@ -81,8 +81,10 @@ local function process_localization(tbl)
     end
 end
 
-local old = init_localization
-function init_localization(...)
-    process_localization(G.localization)
-    return old(...)
+if Btraddon.config.sort then
+    local old = init_localization
+    function init_localization(...)
+        process_localization(G.localization)
+        return old(...)
+    end
 end

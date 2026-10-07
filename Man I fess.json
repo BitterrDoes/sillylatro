@@ -1,0 +1,17 @@
+{
+    "id": "btr_addons",
+    "name": "Sillylatro",
+    "author": ["BitterDoes"],
+    "description": "add funny and wacky addons to change up your balatro experience!",
+    "prefix": "BtrSilly",
+	"priority": 1e+255,
+    "main_file": "Main.lua",
+    "badge_colour": "321a70",
+    "dependencies": [
+        "Steamodded (>=26.1002.0)"
+    ],
+    "version": "1.2.4",
+
+    "icon_path": "icon.png",
+    "icon_width": 360
+}
