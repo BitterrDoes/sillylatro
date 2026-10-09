@@ -29,6 +29,11 @@ function love.update(dt, ...)
         love.window.setMode(newWidth, newHeight)
         love.resize(newWidth, newHeight)
         windowWidth, windowHeight = newWidth, newHeight
+
+        if Btraddon.config.link then
+            Btraddon.char.x = windowWidth /2
+            Btraddon.char.y = windowHeight /2
+        end
     end
     windowWidth, windowHeight = love.graphics.getDimensions()
     screenWidth, screenHeight = love.window.getDesktopDimensions(1)
@@ -40,7 +45,7 @@ function love.update(dt, ...)
         velocityX = -velocityX
         windowX = math.max(0, math.min(windowX, screenWidth - windowWidth))
     end
-    
+
     if windowY <= 0 or windowY + windowHeight >= screenHeight then
         velocityY = -velocityY
         windowY = math.max(0, math.min(windowY, screenHeight - windowHeight))

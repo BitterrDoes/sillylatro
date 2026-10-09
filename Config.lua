@@ -1,10 +1,12 @@
 return {
     -- Cosmetic
-    bltro = true,
+    bltro = false,
     jala = false,
-    dvd = false,
     sort = false,
+    
+    dvd = false,
     marketplier = false,
+    link = false,
     -- Gameplay
     milk = false, -- WHAT could this mean
 }

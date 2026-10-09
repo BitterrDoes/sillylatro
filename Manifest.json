@@ -1,7 +1,7 @@
 {
     "name": "Sillylatro", 
     "description": "add funny and wacky addons to spruce up your balatro experience!", 
-    "version_number": "1.2.4", 
+    "version_number": "1.3.0", 
     "website_url": "https://github.com/BitterrDoes/sillylatro",
     "dependencies": [
         "Steamodded-Steamodded-26.1002.0",
