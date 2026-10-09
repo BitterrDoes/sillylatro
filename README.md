@@ -17,7 +17,10 @@ To start the mod go to your 'MODS' section of the main menu, and go into the set
     - Causes your balatro window to bounce around like a dvd logo.
 -  LIVE MARKIPLIER REACTION
     - Places Markiplier in the middle right of your screen where he'll react to your gameplay.
- 
+-  Link from the Legend of Zelda
+    - Replaces all mouse controls with a playable 'Link'
+    - (control with wasd or arrow keys to move, enter and space to attack)
+
 ## What is Sillylatro?
 
 Sillylatro is my latest mod in a long line of mid mods! Where instead of a content mod I opted to make everything stupid
