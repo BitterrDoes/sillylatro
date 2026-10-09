@@ -245,7 +245,7 @@ Btraddon.config_tab = function()
                                 ref_table = Btraddon.config,
                                 ref_value = "marketplier"
                             }),
-                            Btraddon.create_toggle_spec({ -- Market plier
+                            Btraddon.create_toggle_spec({ -- Link
                                 label = "{C:white}Link from legend of zelda",
                                 desc = {"{C:inactive}Control link with wasd or arrow keys", "{C:inactive}attack with enter or x"},
                                 ref_table = Btraddon.config,
