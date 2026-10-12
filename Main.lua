@@ -1,5 +1,3 @@
--- Note: press ctrl+k ctrl+0
-
 -- variables
 Btraddon = SMODS.current_mod
 Btraddon.currentGame = nil
@@ -7,21 +5,40 @@ Btraddon.configClone = {}
 for i, v in pairs(Btraddon.config) do
     Btraddon.configClone[i] = v
 end
-Btraddon.config.link = false
         -- Probably best to do it like this so you cant load in with link
 
--- load addons
-print("Sillylatro | Now loading")
-for _, file in pairs(NFS.getDirectoryItems(Btraddon.path.. "/Addons")) do
-    assert(SMODS.load_file("Addons/"..file, "btr_addons"))()
-	print("Sillylatro | Loaded Addon : ".. file)
-end
-for _, file in pairs(NFS.getDirectoryItems(Btraddon.path.. "Minigames")) do
-    assert(SMODS.load_file("Minigames/"..file, "btr_addons"))()
-	print("Sillylatro | Loaded Game : ".. file)
+-- load functions
+function Btraddon.Load_file(file) -- basically just SMODS.load_file() but safer, so i can accidentally have somethign break and it be chill
+	local chunk = SMODS.load_file(file, "btr_addons")
+	if chunk then
+		local ok, func = pcall(chunk)
+		if ok then
+			print("Sillylatro! | loaded ".. file)
+			return func
+		else
+			print("Sillylatro! | Failed loading ".. file, " : ", func)
+            print("Sillylatro! | Report this to the developer!!")
+		end
+	end
+	return nil
 end
 
--- Load Icons
+function Btraddon.Load_Dir(directory) -- recursive
+	local files = NFS.getDirectoryItems(Btraddon.path .. "/" .. directory)
+
+	for _, filename in ipairs(files) do -- iterate over all files in the directory
+		local file_path = directory .. "/" .. filename
+		if file_path:match(".lua$") then -- check if its lua
+			Btraddon.Load_file(file_path) -- load lua file not file_path:find("%.") then
+			Btraddon.Load_Dir(directory.. "/".. filename)
+		elseif not file_path:find("%.") then
+			Btraddon.Load_Dir(directory.. "/".. filename)
+		end
+	end
+end
+
+-- load
+Btraddon.Load_Dir("src")
 for _, file in pairs(NFS.getDirectoryItems(Btraddon.path.. "Assets/1x/Icons")) do
     local k = string.sub(file, 0, string.find(file, ".png")-1)
     SMODS.Atlas {
@@ -32,385 +49,96 @@ for _, file in pairs(NFS.getDirectoryItems(Btraddon.path.. "Assets/1x/Icons")) d
     }
 end
 
--- configs | taken from a mod i dont remember
-G.C.UI.CONFIG_EMBOSS = HEX("4c5257")
-function Btraddon.create_textbox(args)
-    if not args then args = {} print("dumbass forgot to arg") end
-    args.scale = args.scale or 1
-    args.w = args.w or 6
-    args.label = args.label or ''
-    args.desc = args.desc or nil
-    args.label_scale = args.label_scale or 1.5
-    args.desc_scale = args.desc_scale or 1
+-- Playground
+--[[
+local data = NFS.newFileData(Btraddon.path .. "Assets/link.png")
+local sprite = love.graphics.newImage(data)
+sprite:setFilter("nearest", "nearest")
 
-    local descNodes = nil
-    if args.desc ~= nil then
-        local nodes = {}
+Btraddon.EvilCharacter = {
+    pos = {
+        x = 50, y = 50, -- current pos
+        vx = 0, vy = 0, -- velocity
+        tx = 0, ty = 0, -- end pos
 
-        if type(args.desc) == "string" then
-            nodes = {
-                {
-                    n = G.UIT.R,
-                    config = { align = "cl", minw = args.w + .2 },
-                    nodes = SMODS.localize_box(loc_parse_string(args.desc),
-                        { scale = args.desc_scale, colour = G.C.BLACK, align = "cl" })
-
-                },
-            }
-        else -- table or crash, your choice
-            for _, string in pairs(args.desc) do
-                table.insert(nodes,{
-                    n = G.UIT.R,
-                    config = { align = "cl", minw = args.w + .2 },
-                    nodes = SMODS.localize_box(loc_parse_string(string), { scale = args.desc_scale, colour = G.C.BLACK, align = "cl" })
-                })
-            end 
-        end
-
-        descNodes = {
-            n = G.UIT.R,
-            config = { align = "cm", minw = args.w },
-            nodes = nodes
-        }
-    end
-
-    return {
-        n = G.UIT.C,
-        config = { align = "cm", minw = args.w },
-        nodes = {
-            {
-                n = G.UIT.R,
-                config = { align = "cm", minw = args.w },
-                nodes = {
-                    {
-                        n = G.UIT.R,
-                        config = { align = "cl", minw = args.w + .2 },
-                        nodes = SMODS.localize_box(loc_parse_string(args.label),
-                            { scale = args.label_scale, colour = G.C.BLACK, align = "cl" })
-                    },
-                }
-            },
-            descNodes
-        }
-    }
-end
-
-function Btraddon.create_toggle_spec(args)
-    args = args or {}
-    args.active_colour = args.active_colour or G.C.RED
-    args.inactive_colour = args.inactive_colour or G.C.BLACK
-    args.w = args.w or 6
-    args.h = args.h or 5
-    args.scale = args.scale or 1
-    args.label = args.label or ''
-    args.desc = args.desc or nil
-    args.label_scale = args.label_scale or 1.5
-    args.desc_scale = args.desc_scale or 1
-    args.ref_table = args.ref_table or {}
-    args.ref_value = args.ref_value or 'test'
-
-    local check = Sprite(0, 0, 0.5 * args.scale, 0.5 * args.scale, G.ASSET_ATLAS["icons"], { x = 1, y = 0 })
-    check.states.drag.can = false
-    check.states.visible = false
-
-    local info = nil
-    if args.info then
-        info = {}
-        for k, v in ipairs(args.info) do
-            table.insert(info, {
-                n = G.UIT.R,
-                config = { align = "cm", minh = 0.05 },
-                nodes = {
-                    { n = G.UIT.T, config = { text = v, scale = 0.25, colour = G.C.UI.TEXT_LIGHT } }
-                }
-            })
-        end
-        info = { n = G.UIT.R, config = { align = "cm", minh = 0.05 }, nodes = info }
-    end
-
-    local t ={
-        n = args.col and G.UIT.C or G.UIT.R,
-        config = { align = "cm", r = .1, colour = G.C.UI.CONFIG_EMBOSS, emboss = 0.05, w = 100, focus_args = { funnel_from = true } },
-        nodes = {{
-            n = args.col and G.UIT.C or G.UIT.R,
-            config = { align = "cl", padding = .1, focus_args = { funnel_from = true } },
-            nodes = {
-                -- textbox
-                Btraddon.create_textbox(args),
-                -- button
-                {n = G.UIT.C, config = { align = "cr", minw = 0.3 * args.w },
-                    nodes = {
-                        {
-                            n = G.UIT.C,
-                            config = { align = "cr", r = 0.1, colour = G.C.BLACK },
-                            nodes = {{
-                                n = G.UIT.C,
-                                config = {
-                                    align = "cm",
-                                    r = 0.1,
-                                    padding = 0.03,
-                                    minw = 0.4 * args.scale,
-                                    minh = 0.4 * args.scale,
-                                    outline_colour = G.C.WHITE,
-                                    outline = 1.2 * args.scale,
-                                    line_emboss = 0.5 * args.scale,
-                                    ref_table = args,
-                                    colour = args.inactive_colour,
-                                    button = 'toggle_button',
-                                    button_dist = 0.2,
-                                    hover = true,
-                                    toggle_callback = args.callback,
-                                    func = 'toggle',
-                                    focus_args = { funnel_to = true }
-                                },
-                                nodes = {
-                                    { n = G.UIT.O, config = { object = check } },
-                                }
-                            }}
-                        }
-                    }
-                },
-            }
-        }}
-    }
-
-    if args.info then
-        t = {
-            n = args.col and G.UIT.C or G.UIT.R,
-            config = { align = "cm" },
-            nodes = {
-                t,
-                info,
-            }
-        }
-    end
-    return t
-end
-
-Btraddon.config_tab = function()
-    return 
-	{
-		n = G.UIT.ROOT,
-		config = { r = 0.1, minw = 10, align = 'cm', padding = 0.1, colour = G.C.BLACK },
-		nodes = {
-			{
-				n = G.UIT.R,
-				config = { r = 0.1, maxw = 20, align = 'cm', padding = 0.1, colour = G.C.BLACK },
-				nodes = {
-					{
-						n = G.UIT.C,
-						config = { r = 0.1, minw = 7, align = 'cm', padding = 0.1, colour = G.C.BLACK },
-						nodes = {
-							Btraddon.create_toggle_spec({ -- Bltro
-								label = "{C:white}Bltro",
-								desc =
-								"{C:inactive}Remove every occurrence of the letter 'a'.",
-								ref_table = Btraddon.config,
-								ref_value = "bltro"
-							}),
-							Btraddon.create_toggle_spec({ -- Jalatro
-								label = "{C:white}Jalatro",
-								desc =
-								"{C:inactive}Every word starts with a J.",
-								ref_table = Btraddon.config,
-								ref_value = "jala"
-							}),
-							Btraddon.create_toggle_spec({ -- Letter sort
-								label = "{C:white}Letter Sort",
-								desc = {"{C:inactive}Every text has now been sorted a-z."},
-								ref_table = Btraddon.config,
-								ref_value = "sort"
-							}),
-							Btraddon.create_toggle_spec({ -- hehe
-								label = "{C:white}Disable Mouse",
-								desc = {"{C:inactive}Remove Mouse controls"},
-								ref_table = Btraddon.config,
-								ref_value = "link"
-							}),
-                        },
-					},
-                    {
-                        n = G.UIT.C,
-                        config = { r = 0.1, minw = 7, align = 'cm', padding = 0.1, colour = G.C.BLACK },
-                        nodes = {
-                            Btraddon.create_toggle_spec({ -- DVD
-                                label = "{C:white}DVD Balatro",
-                                desc = {"{C:inactive}haha dvd logo.", "{C:red,s:0.6}Can and probably will give a headache!"},
-                                ref_table = Btraddon.config,
-                                ref_value = "dvd"
-                            }),
-                            Btraddon.create_toggle_spec({ -- Market plier
-                                label = "{C:white}LIVE MARKIPLIER REACTION",
-                                desc = {"{C:inactive}your every move is being watched", "{C:inactive}by the market pliers"},
-                                ref_table = Btraddon.config,
-                                ref_value = "marketplier"
-                            }),
-                            Btraddon.create_toggle_spec({ -- Link
-                                label = "{C:white}Link from legend of zelda",
-                                desc = {"{C:inactive}Control link with wasd or arrow keys", "{C:inactive}attack with enter or x"},
-                                ref_table = Btraddon.config,
-                                ref_value = "link"
-                            }),
-                        }
-                    },
-				}
-			},
-            {
-                n = G.UIT.R,
-                config = {align = 'bm'},
-                nodes = {
-                    {
-                        n = G.UIT.T,
-                        config = {text = "Restart game after changes*", scale=.3, align = 'cm', colour = G.C.WHITE}
-                    },
-                },
-            },
-		}
-    }
-end
-
-SMODS.Sound {
-	key = "bear5scream",
-	path = "bear5.mp3",
+        og_posx = 0, og_posy = 0,
+        og_dist = 0
+    },
+    speed   = 300,
+    facing  = "down",
+    action  = false,
+    moving  = false,
+    busy    = false
 }
-SMODS.Atlas {
-	key = "bear5",
-	path = "bear5.png",
-    px = 1920,
-    py = 1080
-}
+    -- Util funcs
+function walktopoint(target_x, target_y)
+    local c = Btraddon.EvilCharacter
+                c.busy = false -- because once wasnt enough ??
+    local p = c.pos
 
-SMODS.current_mod.extra_tabs = function()
-    return {
-        --[[
-        {
-            label = localize("k_minigamesText"),
-                -- it'll be funny after all text effects are on
-            tab_definition_function = function()
-                return
-                {
-                    n = G.UIT.ROOT, config = { r = 0.1, minw = 10, align = 'cm', padding = 0.1, colour = G.C.BLACK },
-                    nodes = {{
-                        n = G.UIT.R,
-                        config = { r = 0.1, maxw = 20, align = 'cl', padding = 0.1, colour = G.C.BLACK },
-                        nodes = {
-                            -- game 1
-                            {
-                                n = G.UIT.R,
-                                config = { align = "cm", r = .1, colour = G.C.UI.CONFIG_EMBOSS, emboss = 0.05, w = 10, focus_args = { funnel_from = true } },
-                                nodes = {
-                                    {
-                                        n = G.UIT.R,
-                                        config = { r = 0.1, minw = 4, align = 'cl', padding = 0.1 },
-                                        nodes = {
-                                            -- image
-                                            {
-                                                n = G.UIT.C,
-                                                config = { r = 0.1, minw = 1.1, align = 'cl', no_overflow = true },
-                                                nodes = {{
-                                                    n = G.UIT.O,
-                                                    config = {align = 'cm', object = Sprite(0,0,1,1, G.ASSET_ATLAS["BtrSilly_TestIcon"])},
-                                                }}
-                                            },
-                                            -- text container
-                                            Btraddon.create_textbox({
-                                                label = "{C:white}Test Game 1",
-                                                desc = {"{C:inactive}Test Description text", "{C:red,s:1}Lorum Ipsum!!!"},
-                                            }),
-                                            -- button
-                                            UIBox_button({
-                                                button = "btr_TestGame",
-                                                label = {"Play"},
-                                                colour = G.C.GREEN,
-                                                col = true,
-                                                minw = 2
-                                            })
-                                        }
-                                    }
-                                }
-                            },
-                        }}
-                    }
-                }
-            end,
-        },
-        ]]
-        {
-            label = "BEAR5",
-                -- it'll be funny after all text effects are on
-            tab_definition_function = function()
-                bear5s = bear5s or {}
-                local bear5 = Sprite(0,0,G.ROOM_ATTACH.T.w,G.ROOM_ATTACH.T.h, G.ASSET_ATLAS["BtrSilly_bear5"])
-                table.insert(bear5s, UIBox{
-                    definition = {n = G.UIT.O, config = {object = bear5}},
-                    config = {
-                        align = "cm",
-                        offset = {x = 0, y = 0},
-                        major = G.ROOM_ATTACH,
-                        bond = 'Weak',
-                        instance_type = "POPUP"
-                    }
-                })
-                play_sound("BtrSilly_bear5scream", 1, 0.3)
-                G.E_MANAGER:add_event(Event({
-                    trigger = "after",
-                    delay = 1.024,
-                    blockable = false,
-                    func = function()
-                        if bear5s[1] then
-                            bear5s[1]:remove()
-                            bear5s[1] = nil
-                            return true
-                        end
-                    end
-                }))
-                SMODS.LAST_SELECTED_MOD_TAB = "mod_desc"
-                G.FUNCS["openModUI_btr_addons"]()
-                return {}
-            end,
-        },
-    }
-end
+    local w, h = love.graphics.getDimensions()
+    target_x = target_x or math.btr_clamp(p.x + math.random(-w, w) / 3, 64, w - 64)
+    target_y = target_y or math.btr_clamp(p.y + math.random(-h, h) / 2.5, 64, h - 64)
+        -- this is cool as I can have JUST random x or JUST random y !!
 
-Btraddon.calculate = function(self, context)
-    if Btraddon.config.marketplier and Btraddon.show_marketplier then
-        if context.end_of_round and context.main_eval then
-            if not context.game_over then
-                Btraddon.set_markstate("blindwin")
-            else
-                Btraddon.set_markstate("death")
-            end
-        elseif context.press_play then
-            Btraddon.set_markstate("prayge")
-        elseif context.after and G.GAME.markstate ~= "death" then
-            G.E_MANAGER:add_event(Event({
-                func = function()
-                    Btraddon.set_markstate()
-                    return true
-                end
-            }))
-        elseif context.starting_shop then
-            Btraddon.set_markstate()
-        end
+    -- remember where we started and where we're going
+    p.og_posx, p.og_posy = p.x, p.y
+    p.tx, p.ty = target_x, target_y
+
+    -- omg guys pythag !! i love pythag !!
+    p.og_dist = (target_x - p.x)^2 + (target_y - p.y)^2
+    if p.og_dist == 0 then
+        p.vx, p.vy = 0, 0 -- avoid 0 and bignums
+    else
+        local dist = math.sqrt(p.og_dist)
+        p.vx = (target_x - p.x) / dist * c.speed
+        p.vy = (target_y - p.y) / dist * c.speed
+        c.moving = true
     end
 end
-
-if Btraddon.config.marketplier then
-    local oldDel = Game.delete_run
-    function Game.delete_run(self)
-        Btraddon.hide_marketplier()
-        oldDel(self)
-    end
-    local oldWin = win_game
-    function win_game()
-        Btraddon.set_markstate("win")
-        oldWin()
-    end
+function walkOut()
     
-    local oldStart = Game.start_run
-    function Game.start_run(...)
-        Btraddon.show_marketplier()
-        Btraddon.set_markstate()
-        oldStart(...)
+end
+
+local oldupd = love.update
+function love.update(dt, ...)
+    oldupd(dt, ...)
+    local c = Btraddon.EvilCharacter
+    local p = c.pos
+
+    if c.moving and not c.busy then
+        p.x = p.x + p.vx * dt
+        p.y = p.y + p.vy * dt
+
+        -- overshoot check (squared distance, no sqrt)
+        local dist = (p.og_posx - p.x)^2 + (p.og_posy - p.y)^2
+        if dist >= p.og_dist then
+            p.x, p.y = p.tx, p.ty
+            p.vx, p.vy = 0, 0
+            p.og_dist = 0
+            c.moving = false
+        end
+    elseif not c.busy then
+        c.busy = true
+        G.E_MANAGER:add_event(Event({
+            trigger = 'after',
+            blocking = false,
+            blockable = false,
+            delay = math.random(2,15)/10,
+            func = function()
+                c.busy = false
+                walktopoint()
+                return true
+            end
+        }))
     end
 end
+
+local olddraw = love.draw
+function love.draw(...)
+    olddraw(...)
+    local c = Btraddon.EvilCharacter
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.rectangle("line", c.pos.x-0.5, c.pos.y-0.5, 15, 15)
+end
+--]]

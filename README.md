@@ -13,6 +13,8 @@ To start the mod go to your 'MODS' section of the main menu, and go into the set
     - Every word starts with a J.
 -  Letter Sort
     - Every text has now been sorted a-z.
+-  Disable mouse
+    - What do you think..?
 -  DVD Balatro
     - Causes your balatro window to bounce around like a dvd logo.
 -  LIVE MARKIPLIER REACTION
