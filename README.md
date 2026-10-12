@@ -23,6 +23,11 @@ To start the mod go to your 'MODS' section of the main menu, and go into the set
     - Replaces all mouse controls with a playable 'Link'
     - (control with wasd or arrow keys to move, enter and space to attack)
 
+## Current NEW MINIGAMES!
+thers only one :c
+-   Snake
+    - Adds classic snake game to balatro through the Minigames menu
+
 ## What is Sillylatro?
 
 Sillylatro is my latest mod in a long line of mid mods! Where instead of a content mod I opted to make everything stupid
